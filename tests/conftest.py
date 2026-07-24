@@ -49,7 +49,7 @@ SAMPLE_ACTIONS_YAML_MINIMAL = textwrap.dedent("""\
 """)
 
 
-@pytest.fixture()
+@pytest.fixture
 def actions_yaml_path(tmp_path: Path) -> Path:
     """Write a sample actions.yaml and return its path."""
     p = tmp_path / "actions.yaml"
@@ -57,7 +57,7 @@ def actions_yaml_path(tmp_path: Path) -> Path:
     return p
 
 
-@pytest.fixture()
+@pytest.fixture
 def actions_yaml_minimal_path(tmp_path: Path) -> Path:
     """Write a minimal actions.yaml and return its path."""
     p = tmp_path / "actions_minimal.yaml"

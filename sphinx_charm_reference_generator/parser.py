@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -32,7 +32,10 @@ class ActionsValidationError(Exception):
         super().__init__("\n".join(errors))
 
 
-def validate_actions(actions_data: Any, source_path: str | Path = "<unknown>") -> list[str]:
+def validate_actions(
+    actions_data: object,
+    source_path: str | Path = "<unknown>",
+) -> list[str]:
     """Validate the structure of actions.yaml data.
 
     Returns a list of error strings. An empty list means valid.
@@ -46,7 +49,8 @@ def validate_actions(actions_data: Any, source_path: str | Path = "<unknown>") -
         )
         return errors
 
-    for action_name, details in actions_data.items():
+    typed_actions = cast("dict[str, Any]", actions_data)
+    for action_name, details in typed_actions.items():
         if not isinstance(details, dict):
             errors.append(
                 f"Action '{action_name}': value must be a mapping, "
@@ -54,24 +58,26 @@ def validate_actions(actions_data: Any, source_path: str | Path = "<unknown>") -
             )
             continue
 
-        if "description" not in details:
+        typed_details = cast("dict[str, Any]", details)
+        if "description" not in typed_details:
             errors.append(
                 f"Action '{action_name}': missing required 'description' field"
             )
-        elif not isinstance(details["description"], str):
+        elif not isinstance(typed_details["description"], str):
             errors.append(
                 f"Action '{action_name}': 'description' must be a string, "
-                f"got {type(details['description']).__name__}"
+                f"got {type(typed_details['description']).__name__}"
             )
 
-        if "params" in details:
-            if not isinstance(details["params"], dict):
+        if "params" in typed_details:
+            if not isinstance(typed_details["params"], dict):
                 errors.append(
                     f"Action '{action_name}': 'params' must be a mapping, "
-                    f"got {type(details['params']).__name__}"
+                    f"got {type(typed_details['params']).__name__}"
                 )
             else:
-                for param_name, param_details in details["params"].items():
+                typed_params = cast("dict[str, Any]", typed_details["params"])
+                for param_name, param_details in typed_params.items():
                     if not isinstance(param_details, dict):
                         errors.append(
                             f"Action '{action_name}', param '{param_name}': "
@@ -94,8 +100,8 @@ def load_actions(yaml_path: str | Path) -> dict[str, Any]:
     if not yaml_path.exists():
         raise FileNotFoundError(f"Could not find {yaml_path}")
 
-    with open(yaml_path, "r", encoding="utf-8") as f:
-        actions_data = yaml.safe_load(f)
+    with yaml_path.open(encoding="utf-8") as f:
+        actions_data: dict[str, Any] = yaml.safe_load(f)
 
     errors = validate_actions(actions_data, yaml_path)
     if errors:
