@@ -1,14 +1,12 @@
 # sphinx-actions-ref
 
-A Sphinx extension that generates reference documentation from Juju charm
-`actions.yaml` files.
+A Sphinx extension that renders Juju charm `actions.yaml` documentation inline
+using a directive.
 
 ## Features
 
 - **Directive**: Use `.. actions-reference::` (reST) or `` {actions-reference} ``
   (MyST) to embed action documentation inline in any page.
-- **Auto-generation**: Optionally write standalone `.md` or `.rst` files into the
-  source tree at build time, keeping docs in sync with code automatically.
 - **Multiple sources**: Document actions from multiple charms in the same
   documentation set.
 
@@ -46,31 +44,19 @@ In a MyST file:
 ```
 ````
 
-### Auto-generating standalone pages
+You can override the YAML path per directive instance:
 
-```python
-actions_autogenerate = True
-actions_output_format = "myst"  # or "rst"
-actions_sources = [
-    {"yaml_path": "charms/foo/actions.yaml", "output_path": "reference/foo-actions"},
-    {"yaml_path": "charms/bar/actions.yaml", "output_path": "reference/bar-actions"},
-]
+```rst
+.. actions-reference::
+   :yaml-path: path/to/other/actions.yaml
 ```
 
 ## Configuration
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `actions_sources` | `list[dict]` or `str` | `"actions.yaml"` | Source declarations. A bare string is shorthand for a single source. |
-| `actions_output_format` | `str` | `"myst"` | `"myst"` for `.md`, `"rst"` for `.rst` |
-| `actions_autogenerate` | `bool` | `False` | Write standalone files on build |
-
-Each entry in `actions_sources` accepts:
-
-| Key | Required | Default | Description |
-|---|---|---|---|
-| `yaml_path` | yes | — | Path to `actions.yaml`, relative to `confdir` |
-| `output_path` | no | `"reference/actions"` | Output path relative to `srcdir` (no extension) |
+| `actions_sources` | `list` or `str` | `"actions.yaml"` | Path(s) to `actions.yaml` files, relative to `confdir`. A bare string is shorthand for a single source. |
+| `actions_confdir` | `str` | Sphinx `confdir` | Base directory for resolving relative paths |
 
 ## License
 

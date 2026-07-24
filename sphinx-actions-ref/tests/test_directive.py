@@ -5,7 +5,6 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-import pytest
 from sphinx.application import Sphinx
 
 SAMPLE_ACTIONS_YAML = textwrap.dedent("""\
@@ -159,34 +158,3 @@ class TestDirectiveMyst:
         html = (outdir / "index.html").read_text(encoding="utf-8")
         assert "pause" in html
         assert "resume" in html
-
-
-class TestAutogenerationIntegration:
-    """Test auto-generation with a real Sphinx build."""
-
-    def test_autogen_creates_file_and_builds(self, tmp_path: Path) -> None:
-        conf_extra = textwrap.dedent("""\
-            actions_autogenerate = True
-            actions_output_format = "rst"
-            actions_sources = "actions.yaml"
-        """)
-        index = textwrap.dedent("""\
-            Test
-            ====
-
-            .. toctree::
-
-               reference/actions
-        """)
-        outdir = _build_sphinx(tmp_path, conf_extra=conf_extra, index_content=index)
-
-        # The generated file should exist in the source tree
-        srcdir = tmp_path / "src"
-        generated = srcdir / "reference" / "actions.rst"
-        assert generated.exists()
-
-        # The HTML output should include the generated content
-        html_path = outdir / "reference" / "actions.html"
-        assert html_path.exists()
-        html = html_path.read_text(encoding="utf-8")
-        assert "pause" in html

@@ -58,8 +58,7 @@ class ActionsReferenceDirective(SphinxDirective):
 
         sources = _normalize_sources(self.config.actions_sources)
         if sources:
-            first = sources[0]
-            path = Path(first["yaml_path"])
+            path = Path(sources[0])
             if not path.is_absolute():
                 path = confdir / path
             return path
@@ -143,24 +142,19 @@ class ActionsReferenceDirective(SphinxDirective):
 
 
 def _normalize_sources(
-    raw: str | list[dict[str, str]] | None,
-) -> list[dict[str, str]]:
-    """Normalize actions_sources config to a list of dicts."""
+    raw: str | list[dict[str, str] | str] | None,
+) -> list[str]:
+    """Normalize actions_sources config to a list of yaml path strings."""
     if raw is None:
         return []
     if isinstance(raw, str):
-        return [{"yaml_path": raw, "output_path": "reference/actions"}]
+        return [raw]
     if isinstance(raw, list):
         normalized = []
         for entry in raw:
             if isinstance(entry, str):
-                normalized.append({"yaml_path": entry, "output_path": "reference/actions"})
-            elif isinstance(entry, dict):
-                if "yaml_path" not in entry:
-                    continue
-                normalized.append({
-                    "yaml_path": entry["yaml_path"],
-                    "output_path": entry.get("output_path", "reference/actions"),
-                })
+                normalized.append(entry)
+            elif isinstance(entry, dict) and "yaml_path" in entry:
+                normalized.append(entry["yaml_path"])
         return normalized
     return []

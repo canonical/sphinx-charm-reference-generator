@@ -24,7 +24,6 @@ classifiers = [
 dependencies = [
     "sphinx>=5",
     "pyyaml>=6",
-    "jinja2>=3",
 ]
 
 [project.optional-dependencies]
@@ -35,9 +34,6 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-data]
-sphinx_actions_ref = ["templates/*.j2"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
