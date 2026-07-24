@@ -1,3 +1,19 @@
+# This file is part of sphinx-charm-reference-generator.
+#
+# Copyright 2025 Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License version 3, as published by the Free
+# Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranties of MERCHANTABILITY, SATISFACTORY
+# QUALITY, or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """Integration tests for the actions-reference directive and full Sphinx builds."""
 
 from __future__ import annotations
@@ -5,6 +21,7 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
+import pytest
 from sphinx.application import Sphinx
 
 SAMPLE_ACTIONS_YAML = textwrap.dedent("""\
@@ -54,7 +71,7 @@ def _build_sphinx(
     doctreedir = tmp_path / "doctrees"
     srcdir.mkdir()
 
-    ext_list = '"sphinx_actions_ref"'
+    ext_list = '"sphinx_charm_reference_generator"'
     if use_myst:
         ext_list += ', "myst_parser"'
 
@@ -85,6 +102,7 @@ def _build_sphinx(
     return outdir
 
 
+@pytest.mark.slow
 class TestDirectiveRst:
     """Test the directive in reStructuredText projects."""
 
@@ -134,7 +152,7 @@ class TestDirectiveRst:
 
         conf = textwrap.dedent("""\
             project = "Test"
-            extensions = ["sphinx_actions_ref"]
+            extensions = ["sphinx_charm_reference_generator"]
             exclude_patterns = ["_build"]
         """)
         (srcdir / "conf.py").write_text(conf, encoding="utf-8")
@@ -156,6 +174,7 @@ class TestDirectiveRst:
         assert "A custom action." in html
 
 
+@pytest.mark.slow
 class TestDirectiveMyst:
     """Test the directive in MyST Markdown projects."""
 
