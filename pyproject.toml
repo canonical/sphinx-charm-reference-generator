@@ -32,6 +32,7 @@ lint = [
 ]
 types = [
     "types-docutils",
+    "types-PyYAML",
     "types-setuptools",
 ]
 dev = [

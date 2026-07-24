@@ -7,7 +7,7 @@ using a directive.
 
 ### Directive
 
-Use `.. actions-reference::` (reST) or `` {actions-reference} ``
+Use `.. actions-reference::` (reST) or `{actions-reference}`
 (MyST) to embed action documentation inline in any page.
 
 Multiple directive instances can document actions from multiple charms in the
@@ -23,6 +23,7 @@ In a MyST file:
 
 ````md
 ```{actions-reference}
+
 ```
 ````
 
@@ -66,8 +67,8 @@ Absolute paths are also supported:
 
 ### Directive options
 
-| Option             | Type  | Default           | Description                                                                                                                                     |
-| ------------------ | ----- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option             | Type  | Default           | Description                                                                                                                                  |
+| ------------------ | ----- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `:action-sources:` | `str` | `../actions.yaml` | Path to an `actions.yaml` file, relative to the Sphinx source directory (the directory containing `conf.py`). Absolute paths are used as-is. |
 
 ## Project setup

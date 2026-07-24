@@ -21,6 +21,8 @@ from __future__ import annotations
 from sphinx.application import Sphinx
 from sphinx.util.typing import ExtensionMetadata
 
+from .directive import ActionsReferenceDirective
+
 try:
     from ._version import __version__
 except ImportError:  # pragma: no cover
@@ -34,8 +36,6 @@ except ImportError:  # pragma: no cover
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     """Register the extension with Sphinx."""
-    from .directive import ActionsReferenceDirective
-
     app.add_directive("actions-reference", ActionsReferenceDirective)
 
     return {

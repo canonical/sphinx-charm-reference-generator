@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -47,11 +47,12 @@ class ActionsReferenceDirective(SphinxDirective):
 
     has_content = False
     optional_arguments = 0
-    option_spec: ClassVar[dict[str, Any]] = {
+    option_spec = {
         "action-sources": directives.unchanged,
     }
 
     def run(self) -> list[nodes.Node]:
+        """Execute the directive and return docutils nodes."""
         yaml_path = self._resolve_yaml_path()
 
         try:
@@ -73,7 +74,7 @@ class ActionsReferenceDirective(SphinxDirective):
 
     def _error(self, message: str) -> nodes.system_message:
         """Return a Sphinx error node."""
-        return self.state_machine.reporter.error(
+        return self.state_machine.reporter.error(  # type: ignore[reportUnknownMemberType]
             message,
             nodes.literal_block(message, message),
             line=self.lineno,
@@ -94,7 +95,7 @@ class ActionsReferenceDirective(SphinxDirective):
             params = details.get("params")
             if params and isinstance(params, dict):
                 section += nodes.paragraph(text="Parameters:")
-                section += self._build_params_table(params)
+                section += self._build_params_table(cast("dict[str, Any]", params))
 
             result_nodes.append(section)
 
@@ -125,6 +126,7 @@ class ActionsReferenceDirective(SphinxDirective):
         for param_name, param_details in params.items():
             if not isinstance(param_details, dict):
                 continue
+            typed_param = cast("dict[str, Any]", param_details)
             row = nodes.row()
 
             name_entry = nodes.entry()
@@ -132,17 +134,16 @@ class ActionsReferenceDirective(SphinxDirective):
             row += name_entry
 
             type_entry = nodes.entry()
-            type_entry += nodes.paragraph(
-                text=str(param_details.get("type", "string"))
-            )
+            type_entry += nodes.paragraph(text=str(typed_param.get("type", "string")))
             row += type_entry
 
             desc_entry = nodes.entry()
-            desc_text = str(param_details.get("description", "-")).replace("\n", " ").strip()
+            desc_text = (
+                str(typed_param.get("description", "-")).replace("\n", " ").strip()
+            )
             desc_entry += nodes.paragraph(text=desc_text)
             row += desc_entry
 
             tbody += row
 
         return table
-
