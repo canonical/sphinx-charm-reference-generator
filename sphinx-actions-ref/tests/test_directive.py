@@ -36,7 +36,19 @@ def _build_sphinx(
     use_myst: bool = False,
     actions_yaml: str = SAMPLE_ACTIONS_YAML,
 ) -> Path:
-    """Build a minimal Sphinx project and return the output directory."""
+    """Build a minimal Sphinx project and return the output directory.
+
+    Layout mirrors a typical repo::
+
+        tmp_path/
+            actions.yaml          # at the "repo root"
+            src/                  # srcdir (the docs folder)
+                conf.py
+                index.rst|.md
+
+    The default :action-sources: (``../actions.yaml``) resolves from srcdir
+    up to tmp_path.
+    """
     srcdir = tmp_path / "src"
     outdir = tmp_path / "out"
     doctreedir = tmp_path / "doctrees"
@@ -55,7 +67,8 @@ def _build_sphinx(
         lines.append(conf_extra)
 
     (srcdir / "conf.py").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    (srcdir / "actions.yaml").write_text(actions_yaml, encoding="utf-8")
+    # Place actions.yaml at the "repo root" (one level above srcdir)
+    (tmp_path / "actions.yaml").write_text(actions_yaml, encoding="utf-8")
 
     ext = ".md" if use_myst else ".rst"
     (srcdir / f"index{ext}").write_text(index_content, encoding="utf-8")
@@ -101,13 +114,13 @@ class TestDirectiveRst:
         assert "boolean" in html
         assert "target" in html
 
-    def test_directive_with_yaml_path_override(self, tmp_path: Path) -> None:
+    def test_directive_with_action_sources_option(self, tmp_path: Path) -> None:
         index = textwrap.dedent("""\
             Test
             ====
 
             .. actions-reference::
-               :yaml-path: custom/actions.yaml
+               :action-sources: custom/actions.yaml
         """)
 
         srcdir = tmp_path / "src"
@@ -126,7 +139,6 @@ class TestDirectiveRst:
         """)
         (srcdir / "conf.py").write_text(conf, encoding="utf-8")
         (srcdir / "index.rst").write_text(index, encoding="utf-8")
-        (srcdir / "actions.yaml").write_text(SAMPLE_ACTIONS_YAML, encoding="utf-8")
 
         outdir = tmp_path / "out"
         doctreedir = tmp_path / "doctrees"
@@ -158,3 +170,4 @@ class TestDirectiveMyst:
         html = (outdir / "index.html").read_text(encoding="utf-8")
         assert "pause" in html
         assert "resume" in html
+        assert "backup" in html

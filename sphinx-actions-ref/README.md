@@ -8,7 +8,7 @@ using a directive.
 - **Directive**: Use `.. actions-reference::` (reST) or `` {actions-reference} ``
   (MyST) to embed action documentation inline in any page.
 - **Multiple sources**: Document actions from multiple charms in the same
-  documentation set.
+  documentation set by adding multiple directive instances.
 
 ## Installation
 
@@ -24,9 +24,6 @@ Add the extension to your Sphinx `conf.py`:
 extensions = [
     "sphinx_actions_ref",
 ]
-
-# Path to your actions.yaml (relative to conf.py directory)
-actions_sources = "actions.yaml"
 ```
 
 ### Using the directive
@@ -44,19 +41,49 @@ In a MyST file:
 ```
 ````
 
-You can override the YAML path per directive instance:
+By default, the directive looks for `actions.yaml` one level above the Sphinx
+source directory (i.e. `../actions.yaml` relative to the directory containing
+`conf.py`). This matches the common layout where docs live in a `docs/` folder
+and `actions.yaml` is at the repository root:
+
+```
+my-charm/
+    actions.yaml
+    docs/
+        conf.py
+        index.rst
+```
+
+To point to a different file, use the `:action-sources:` option with a path
+relative to the Sphinx source directory:
 
 ```rst
 .. actions-reference::
-   :yaml-path: path/to/other/actions.yaml
+   :action-sources: ../actions.yaml
 ```
 
-## Configuration
+For monorepos with multiple charms, use one directive per charm:
+
+```rst
+.. actions-reference::
+   :action-sources: ../charm-a/actions.yaml
+
+.. actions-reference::
+   :action-sources: ../charm-b/actions.yaml
+```
+
+Absolute paths are also supported:
+
+```rst
+.. actions-reference::
+   :action-sources: /home/user/project/actions.yaml
+```
+
+## Directive options
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `actions_sources` | `list` or `str` | `"actions.yaml"` | Path(s) to `actions.yaml` files, relative to `confdir`. A bare string is shorthand for a single source. |
-| `actions_confdir` | `str` | Sphinx `confdir` | Base directory for resolving relative paths |
+| `:action-sources:` | `str` | `../actions.yaml` | Path to an `actions.yaml` file, relative to the Sphinx source directory (the directory containing `conf.py`). Absolute paths are used as-is. |
 
 ## License
 

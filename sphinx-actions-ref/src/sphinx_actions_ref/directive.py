@@ -25,13 +25,14 @@ class ActionsReferenceDirective(SphinxDirective):
         ```
 
     Options:
-        :yaml-path: Override the actions.yaml path for this directive instance.
+        :action-sources: Path to the actions.yaml file, relative to the Sphinx
+            source directory. Defaults to ``../actions.yaml``.
     """
 
     has_content = False
     optional_arguments = 0
     option_spec: ClassVar[dict[str, Any]] = {
-        "yaml-path": directives.unchanged,
+        "action-sources": directives.unchanged,
     }
 
     def run(self) -> list[nodes.Node]:
@@ -48,22 +49,11 @@ class ActionsReferenceDirective(SphinxDirective):
 
     def _resolve_yaml_path(self) -> Path:
         """Determine which actions.yaml to read."""
-        confdir = Path(self.config.actions_confdir)
-
-        if "yaml-path" in self.options:
-            path = Path(self.options["yaml-path"])
-            if not path.is_absolute():
-                path = confdir / path
-            return path
-
-        sources = _normalize_sources(self.config.actions_sources)
-        if sources:
-            path = Path(sources[0])
-            if not path.is_absolute():
-                path = confdir / path
-            return path
-
-        return confdir / "actions.yaml"
+        raw = self.options.get("action-sources", "../actions.yaml")
+        path = Path(raw)
+        if not path.is_absolute():
+            path = Path(self.env.srcdir) / path
+        return path
 
     def _error(self, message: str) -> nodes.system_message:
         """Return a Sphinx error node."""
@@ -140,21 +130,3 @@ class ActionsReferenceDirective(SphinxDirective):
 
         return table
 
-
-def _normalize_sources(
-    raw: str | list[dict[str, str] | str] | None,
-) -> list[str]:
-    """Normalize actions_sources config to a list of yaml path strings."""
-    if raw is None:
-        return []
-    if isinstance(raw, str):
-        return [raw]
-    if isinstance(raw, list):
-        normalized = []
-        for entry in raw:
-            if isinstance(entry, str):
-                normalized.append(entry)
-            elif isinstance(entry, dict) and "yaml_path" in entry:
-                normalized.append(entry["yaml_path"])
-        return normalized
-    return []
