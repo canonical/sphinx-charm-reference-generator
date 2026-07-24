@@ -22,8 +22,6 @@ import textwrap
 from pathlib import Path
 
 import pytest
-import yaml
-
 from sphinx_charm_reference_generator.parser import (
     ActionsValidationError,
     load_actions,
@@ -67,9 +65,7 @@ class TestValidateActions:
         assert "'description' must be a string" in errors[0]
 
     def test_params_not_dict(self) -> None:
-        errors = validate_actions(
-            {"myaction": {"description": "ok", "params": "bad"}}
-        )
+        errors = validate_actions({"myaction": {"description": "ok", "params": "bad"}})
         assert len(errors) == 1
         assert "'params' must be a mapping" in errors[0]
 
